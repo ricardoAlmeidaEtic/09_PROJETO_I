@@ -17,8 +17,16 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth.views import LogoutView
+
+from clonedrive.views import IndexView,SignupView,Login
+
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("", IndexView.as_view(), name='home'),
+    path('signup/', SignupView.as_view(), name='signup'),
+    path('login/', Login.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
     path("website/", include("website.urls")),
+    path("admin/", admin.site.urls),
 ]

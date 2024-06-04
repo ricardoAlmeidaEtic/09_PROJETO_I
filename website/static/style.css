@@ -15,13 +15,19 @@ body {
 
 .logo{
     display: flex;
-    width: 200px;
+    width: 250px;
     height: 50px;
     margin: auto;
     background-color: white;
     justify-content: center;
     align-items: center;
     border-radius: 50px;
+}
+
+.logo span{
+    font-size: 30px;
+    color:black;
+    margin-left: 10px;
 }
 
 .logo:link { 
@@ -37,117 +43,14 @@ body {
     text-decoration: none; 
 }
 
-.container {
-    max-width: 600px;
+#content {
+    max-width: 70%;
     margin: 20px auto;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin-top: 130px;
-}
-
-.tweet {
-    border-bottom: 1px solid #e1e8ed;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-}
-
-.tweet:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
-}
-
-.tweet .user {
-    font-weight: bold;
-    color: #121212;
-}
-
-.tweet .timestamp {
-    color: #8899a6;
-    font-size: 0.8em;
-    margin-left: 10px;
-}
-
-.tweet .content {
-    margin-top: 5px;
-}
-
-.image{
-    margin-top: 10px;
-    width: 100%;
-}
-
-.who-to-follow,.trending-hashtags {
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #e1e8ed;
-}
-
-.who-to-follow h2,.trending-hashtags h2 {
-    margin-bottom: 10px;
-}
-
-.who-to-follow .user,.trending-hashtags .hashtag {
-    color: #3d52a0;
-    margin-bottom: 5px;
-}
-
-.twitter-input {
-    width: 80%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    margin-bottom: 10px;
-    vertical-align: top;
-    resize: vertical; 
-}
-
-.twitter-button {
-    background-color: #3d52a0;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.twitter-button:hover {
-    background-color: darkblue;
-}
-
-#your_message {
-    width: 100%;
-    height: 100px; /* Adjust height as needed */
-    resize: none;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-#your_image {
-    display: block;
-    margin-bottom: 10px;
-}
-
-#submitMessage {
-    background-color: #3d52a0;
-    color: white;
-    border: none;
-    border-radius: 20px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#submitMessage:hover {
-    background-color: darkblue;
 }
 
 #navbar {
@@ -194,11 +97,67 @@ body {
     color:white;
 }
 
-.fa-outline {
-    text-shadow: 1px 1px 10px black;
-    color: white;  
+#uploadBox{
+    display: flex;
+    justify-content: center;
 }
 
-.pressed{
-    color: red;
+#uploadBox div{
+    padding:50px;
 }
+
+#uploadBox form{
+    text-align: center;
+}
+
+#signupBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#loginBox{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.drive-items {
+    list-style: none;
+    padding: 0;
+}
+
+.drive-item {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding: 10px;
+}
+
+.drive-item-icon {
+    width: 40px;
+    height: 40px;
+    background-color: #eee;
+    margin-right: 10px;
+}
+
+.drive-item-icon img{
+    width: 100%;
+}
+
+.drive-item-details {
+    flex: 1;
+}
+
+.drive-item-name {
+    font-weight: bold;
+}
+
+.drive-item-date {
+    color: #666;
+}
+
+.dive-item-delete{
+    background: red;
+}
+

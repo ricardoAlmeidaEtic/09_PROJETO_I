@@ -1,5 +1,68 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
-{% block content %}
-	<h1>HEHE</h1>
+{% load static%}
+{% block 'content' %}
+    <div id="content">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}">login</a>
+            <br>
+            <a href="{% url 'signup' %}">signup</a>
+
+        {% else %}
+            <div id="uploadBox">
+                <div id="folderBox">
+                    <h1>Folder</h1>
+                    <form method="post" enctype="multipart/form-data" id="folderForm">
+                        {% csrf_token %}
+                        <input title="Folder Name" type="text" id="folder_name" required>
+                        <br>
+                        <button type="submit" id="submitFolder">Submit</button>
+                    </form>
+                </div>
+                <div id="FileBox">
+                    <h1>File</h1>
+                    <form method="post" enctype="multipart/form-data" id="fileForm">
+                        {% csrf_token %}
+                        <input type="file" id="file_content" accept="*">
+                        <br>
+                        <button type="submit" id="submitFile">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+            {% if files|length > 0 or folders|length > 0 %}
+                <ul class="drive-items">
+                    {% for folder in folders %}
+                    <li class="drive-item">
+                        <div class="drive-item-icon">
+                            <img src="https://cdn.iconscout.com/icon/free/png-256/free-folder-1166-470303.png">
+                        </div>
+                        <div class="drive-item-details">
+                            <span class="drive-item-name">{{ folder.name }}</span>
+                            <span class="drive-item-date">{{ folder.date }}</span>
+                        </div>
+                        <a onclick="delete(' {{file.id}} ')"><div class="drive-item-icon dive-item-delete"><img src="https://cdn.iconscout.com/icon/free/png-256/free-trash-1767922-1502175.png"></div></a>
+                    </li>
+                    {% endfor %}
+
+                    {% for file in files %}
+                        <li class="drive-item">
+                            <div class="drive-item-icon">
+                                <img src="https://cdn.iconscout.com/icon/free/png-256/free-vlc-media-player-3-735027.png">
+                            </div>
+                            <div class="drive-item-details">
+                                <span class="drive-item-name">{{ file.name }}</span>
+                                <span class="drive-item-date">{{ file.date }}</span>
+                            </div>
+                            <a onclick="delete(' {{file.id}} ')"><div class="drive-item-icon dive-item-delete"><img src="https://cdn.iconscout.com/icon/free/png-256/free-trash-1767922-1502175.png"></div></a>
+                        </li>
+                    {% endfor %}
+                </ul>
+
+            {% else %}
+                <h1>Não tem nenhum ficheiro ou folder criado.</h1>
+                
+            {% endif %}
+        {% endif %}
+    </div>
 {% endblock %}

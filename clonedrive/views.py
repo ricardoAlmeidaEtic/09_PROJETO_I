@@ -1,6 +1,6 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView,FormView
+from django.views.generic import TemplateView,FormView,View
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import UserCreationForm
@@ -30,3 +30,13 @@ class Login(LoginView):
     fields= "__all__"
     redirect_authenticated_user = True
     success_url = "website"
+
+class RedirectView(View):
+    template_name = '404.html'
+
+    def get(self, request,dummy=None):
+        context={
+            'dummy':dummy
+        }
+
+        return render(request, self.template_name,context)

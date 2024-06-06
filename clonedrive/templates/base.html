@@ -7,6 +7,7 @@
   {% load static%}
   <link rel="stylesheet" href="{% static 'style.css' %}">
   <script src="{% static 'main.js' %}"></script>
+  <script src="{% static 'webcomponents.js' %}"></script>
 </head>
 
 <body>
@@ -16,10 +17,10 @@
             <span>CloneDrive</span>
         </a>
         {% if user.is_authenticated %}
-          <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">logout</button>
-          </form>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">logout</button>
+            </form>
         {% endif %}
     </div>
     {% block 'content' %}{% endblock %}

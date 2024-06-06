@@ -103,7 +103,7 @@ body {
 }
 
 #uploadBox div{
-    padding:50px;
+    width: 50%;
 }
 
 #uploadBox form{
@@ -127,52 +127,6 @@ body {
     padding: 0;
 }
 
-.drive-item {
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid #ddd;
-    padding: 10px;
-    cursor: pointer;
-}
-
-.drive-item a{
-    display: flex;
-    align-items: center;
-    text-decoration: none; 
-    color:black;
-}
-
-.drive-item:hover{
-    background-color: lightgray;
-}
-
-.drive-item-icon {
-    width: 40px;
-    height: 40px;
-    background-color: #eee;
-    margin-right: 10px;
-}
-
-.drive-item-icon img{
-    width: 100%;
-}
-
-.drive-item-details {
-    flex: 1;
-}
-
-.drive-item-name {
-    font-weight: bold;
-}
-
-.drive-item-date {
-    color: #666;
-}
-
-.dive-item-delete{
-    background: red;
-}
-
 .buttons {
     display: flex;
     justify-content: center;
@@ -185,7 +139,7 @@ body {
 
 .buttonsBox {
     display: flex;
-    margin-bottom: 20px;
+    margin-top: 50px;
 }
 
 .button {
@@ -211,7 +165,6 @@ body {
 
 #loggingBox img{
     width: 50%;
-    margin-bottom: 20px;
     justify-content: center;
 }
 

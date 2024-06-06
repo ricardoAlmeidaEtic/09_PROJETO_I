@@ -6,11 +6,11 @@
         {% if not user.is_authenticated %}
             <div id="loggingBox">
                 <div class="buttons">
+                    <span>Não se encontra conectado na nossa plataforma, para conseguir aceder a mesma por-favor faça login ou registe-se.</span>
                     <div class="buttonsBox">
                         <a href="{% url 'login' %}" class="button">Login</a>
                         <a href="{% url 'signup' %}" class="button">Signup</a>
                     </div>
-                    <span>Não se encontra conectado na nossa plataforma, para conseguir aceder a mesma por-favor faça login ou registe-se.</span>
                 </div>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo">
             </div>
@@ -40,35 +40,11 @@
             {% if files|length > 0 or folders|length > 0 %}
                 <ul class="drive-items">
                     {% for folder in folders %}
-                        <li class="drive-item">
-                            <a href="/website/{{folder.id}}" style="width: 95%;">
-                                <div class="drive-item-icon">
-                                    <img src="https://cdn.iconscout.com/icon/free/png-256/free-folder-1166-470303.png">
-                                </div>
-                                <div class="drive-item-details">
-                                    <span class="drive-item-name">{{ folder.name }}</span>
-                                    <span class="drive-item-date">{{ folder.date }}</span>
-                                </div>
-                                <a onclick="delete(' {{folder.id}} ')" style="width: 5%;">
-                                    <div class="drive-item-icon dive-item-delete">
-                                        <img src="https://cdn.iconscout.com/icon/free/png-256/free-trash-1767922-1502175.png">
-                                    </div>
-                                </a>
-                            </a>
-                        </li>
+                        <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" type="1"></new-element>
                     {% endfor %}
 
                     {% for file in files %}
-                        <li class="drive-item">
-                            <div class="drive-item-icon">
-                                <img src="https://cdn.iconscout.com/icon/free/png-256/free-vlc-media-player-3-735027.png">
-                            </div>
-                            <div class="drive-item-details">
-                                <span class="drive-item-name">{{ file.name }}</span>
-                                <span class="drive-item-date">{{ file.date }}</span>
-                            </div>
-                            <a onclick="delete(' {{file.id}} ')"><div class="drive-item-icon dive-item-delete"><img src="https://cdn.iconscout.com/icon/free/png-256/free-trash-1767922-1502175.png"></div></a>
-                        </li>
+                        <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" type="0"></new-element>
                     {% endfor %}
                 </ul>
 

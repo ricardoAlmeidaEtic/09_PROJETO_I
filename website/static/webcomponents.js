@@ -120,15 +120,30 @@ class Folder extends HTMLElement {
         driveItemDetails.children[0].innerText = this.#name
         driveItemDetails.children[1].innerText = this.#date
 
-        driveItemDelete.onclick = () => this.delete(this,this.#id,this.#type);
+        driveItemDelete.onclick = () => this.delete(this);
     }
 
-    delete(element,id,type){
-        let typeText = type === 1 ? "Folder" : "File";
+    delete(element){
+        let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
 
         if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
             element.style.display="none"
-            alert(`The ${typeText} was deleted!`);
+
+            content = {
+                method: 'POST',
+                body: {
+                    'form' : formData,
+                    'action' : 'delete'
+                },
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token for security
+                }
+            }
+            
+            if(post(content))
+                alert(`The ${typeText} was deleted!`);
+            else
+                error(`Error ocurrred while deleting the ${typeText}.`)
         }
     }
 }

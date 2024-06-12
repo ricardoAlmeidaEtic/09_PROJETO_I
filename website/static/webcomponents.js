@@ -123,27 +123,22 @@ class Folder extends HTMLElement {
         driveItemDelete.onclick = () => this.delete(this);
     }
 
-    delete(element){
+    async delete(element){
         let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
 
         if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
-            element.style.display="none"
-
-            content = {
-                method: 'POST',
-                body: {
-                    'form' : formData,
-                    'action' : 'delete'
-                },
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken') // Add CSRF token for security
-                }
-            }
+            element.innerHTML=""
             
-            if(post(content))
-                alert(`The ${typeText} was deleted!`);
-            else
-                error(`Error ocurrred while deleting the ${typeText}.`)
+            await post(`/website/delete${typeText}/`,
+                JSON.stringify({
+                    id: element.#id,
+                    action: `delete${typeText}`
+                }),
+                {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            );
         }
     }
 }

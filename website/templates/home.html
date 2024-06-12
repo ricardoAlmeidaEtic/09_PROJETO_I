@@ -2,56 +2,88 @@
 {% block title %}Home{% endblock %}
 {% load static%}
 {% block 'content' %}
-    <div class="content">
-        {% if not user.is_authenticated %}
-            <div id="loggingBox">
-                <div class="buttons">
-                    <span>Não se encontra conectado na nossa plataforma, para conseguir aceder a mesma por-favor faça login ou registe-se.</span>
-                    <div class="buttonsBox">
-                        <a href="{% url 'login' %}" class="button">Login</a>
-                        <a href="{% url 'signup' %}" class="button">Signup</a>
+    <div class="container">
+
+        <div class="content-left">
+            {% if allFolders|length > 0 %}
+                <div class="dropdown-tree">
+                    <ul class="folder-list">
+                        {% for parent_folder in allFolders %}
+                            {% if not parent_folder.parent_folder %}
+                                <li class="parent-folder">
+                                    <div class="arrow" onclick="toggleFolder(event)">
+                                        <span>&#9654;</span>
+                                        <label>{{ parent_folder.name }}</label>
+                                        <ul class="subfolders" data-parent="{{ parent_folder.id }}">
+                                            <!-- Placeholder for subfolders -->
+                                        </ul>
+                                    </div>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="content-center">
+            {% if not user.is_authenticated %}
+                <div id="loggingBox">
+                    <div class="buttons">
+                        <span>Não se encontra conectado na nossa plataforma, para conseguir aceder a mesma por-favor faça login ou registe-se.</span>
+                        <div class="buttonsBox">
+                            <a href="{% url 'login' %}" class="button">Login</a>
+                            <a href="{% url 'signup' %}" class="button">Signup</a>
+                        </div>
+                    </div>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo">
+                </div>
+            {% else %}
+                <div id="uploadBox">
+                    <div id="folderBox">
+                        <h1>Folder</h1>
+                        <form method="post" enctype="multipart/form-data" id="folderForm">
+                            {% csrf_token %}
+                            <input title="Folder Name" type="text" id="folder_name" placeholder="Enter folder name" required>
+                            <input type="hidden" id="folder_id" value="{{folder_id}}">
+                            <button type="submit" id="submitFolder" class="btn">Submit</button>
+                        </form>
+                    </div>
+                    
+                    <div id="fileBox">
+                        <h1>File</h1>
+                        <form method="post" enctype="multipart/form-data" id="fileForm">
+                            {% csrf_token %}
+                            <div id="dropArea" class="drop-area">
+                                <p>Drag and drop a file here or click to select a file</p>
+                                <input type="file" id="file_content" accept="*" hidden>
+                            </div>
+                            <input type="hidden" id="folder_id" value="{{folder_id}}">
+                            <button type="submit" id="submitFile" class="btn">Submit</button>
+                        </form>
                     </div>
                 </div>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo">
-            </div>
-        {% else %}
-            {{folder_id}}
-            <div id="uploadBox">
-                <div id="folderBox">
-                    <h1>Folder</h1>
-                    <form method="post" enctype="multipart/form-data" id="folderForm">
-                        {% csrf_token %}
-                        <input title="Folder Name" type="text" id="folder_name" required>
-                        <br>
-                        <button type="submit" id="submitFolder">Submit</button>
-                    </form>
-                </div>
-                <div id="FileBox">
-                    <h1>File</h1>
-                    <form method="post" enctype="multipart/form-data" id="fileForm">
-                        {% csrf_token %}
-                        <input type="file" id="file_content" accept="*">
-                        <br>
-                        <button type="submit" id="submitFile">Submit</button>
-                    </form>
-                </div>
-            </div>
 
-            {% if files|length > 0 or folders|length > 0 %}
-                <ul class="drive-items">
-                    {% for folder in folders %}
-                        <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" type="1"></new-element>
-                    {% endfor %}
+                {% if files|length > 0 or folders|length > 0 %}
+                    <ul class="drive-items">
+                        {% for folder in folders %}
+                            <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" type="1"></new-element>
+                        {% endfor %}
 
-                    {% for file in files %}
-                        <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" type="0"></new-element>
-                    {% endfor %}
-                </ul>
+                        {% for file in files %}
+                            <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" type="0"></new-element>
+                        {% endfor %}
+                    </ul>
 
-            {% else %}
-                <h1>Não tem nenhum ficheiro ou folder criado.</h1>
-                
+                {% else %}
+                    <h1 style="margin-top:200px;">Não tem nenhum ficheiro ou folder criado.</h1>
+                    
+                {% endif %}
             {% endif %}
-        {% endif %}
+        </div>
+
+        <div class="content-right">
+
+        </div>
     </div>
 {% endblock %}

@@ -22,7 +22,7 @@ class File(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False,help_text="Folder Name")
     date = models.DateTimeField(auto_now_add=True, blank=True,help_text="Folder Creation Date")
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, null=True, default=0, blank=True)
+    folder = models.ForeignKey('Folder', on_delete=models.CASCADE, null=True, blank=True)
     file_content = models.FileField(upload_to='files/')
     hash = models.CharField(max_length=64, editable=False, unique=True)
 

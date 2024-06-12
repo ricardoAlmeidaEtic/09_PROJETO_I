@@ -16,13 +16,13 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" style="width: 30px;">
             <span>CloneDrive</span>
         </a>
-        {% if user.is_authenticated %}
-            <form method="post" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button type="submit">logout</button>
-            </form>
-        {% endif %}
     </div>
+    {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}" class="logout">
+            {% csrf_token %}
+            <button type="submit">logout</button>
+        </form>
+    {% endif %}
     {% block 'content' %}{% endblock %}
 </body>
 

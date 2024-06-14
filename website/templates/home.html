@@ -11,12 +11,9 @@
                         {% for parent_folder in allFolders %}
                             {% if not parent_folder.parent_folder %}
                                 <li class="parent-folder">
-                                    <div class="arrow" onclick="toggleFolder(event)">
-                                        <span>&#9654;</span>
+                                    <div class="arrow" onclick="toggleFolder(event)" id="{{parent_folder.id}}">
+                                        <span>▶️</span>
                                         <label>{{ parent_folder.name }}</label>
-                                        <ul class="subfolders" data-parent="{{ parent_folder.id }}">
-                                            <!-- Placeholder for subfolders -->
-                                        </ul>
                                     </div>
                                 </li>
                             {% endif %}

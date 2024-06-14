@@ -114,10 +114,8 @@ document.addEventListener("DOMContentLoaded", () =>{
     dropArea.addEventListener('drop', function(e) {
         e.preventDefault();
         e.stopPropagation();
+
         dropArea.classList.remove('dragover');
-
-        debugger;
-
         var files = e.dataTransfer.files;
         if (files.length > 0) {
             fileInput.files = files;
@@ -125,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () =>{
     });
 
     fileInput.addEventListener('change', function() {
-        debugger;
         if (fileInput.files.length > 0) {
             dropArea.querySelector('p').textContent = fileInput.files[0].name;
         } else {
@@ -134,46 +131,83 @@ document.addEventListener("DOMContentLoaded", () =>{
     });
 });
 
-document.addEventListener('DOMContentLoaded', () =>{
+document.addEventListener('DOMContentLoaded', () => {
     fetch('/website/get_all_folders/')
         .then(response => response.json())
         .then(data => {
-            const allFolders = data;
+            const allFolders = JSON.parse(data);
             const folderList = document.querySelector('.folder-list');
-            buildTree(folderList, allFolders, null);
+            const folder = folderList.querySelector(".parent-folder");
+            buildTree(folder, allFolders);
         })
         .catch(error => console.error('Error fetching folders:', error));
 });
 
-const buildTree  = (parentNode, folders, parentId) =>{
-    JSON.parse(folders).forEach(folder => {
-        if (folder.parent_folder === parentId) {
-            const li = document.createElement('li');
-            const div = document.createElement('div');
-            div.classList.add('arrow');
-            div.onclick = toggleFolder;
-            const span = document.createElement('span');
-            span.textContent = '▶️';
-            div.appendChild(span);
-            const label = document.createElement('label');
-            label.textContent = folder.name;
-            div.appendChild(label);
-            const ul = document.createElement('ul');
-            ul.classList.add('subfolders');
-            ul.dataset.parent = folder.id;
-            li.appendChild(div);
-            li.appendChild(ul);
-            parentNode.appendChild(li);
-            buildTree(ul, folders, folder.id);
+const buildTree = (parentNode, folders) => {
+    let folderMap = {};
+    
+    folders.forEach(folder => {
+        if (folder.fields && folder.fields.id !== undefined) {
+            folderMap[folder.fields.id] = { ...folder, children: [] };
         }
     });
-}
 
-const toggleFolder = (event) =>{
-    debugger;
-    event.stopPropagation();
+    folders.forEach(folder => {
+        console.log(folder.fields.parent_folder)
+        if (folder.fields && folder.fields.parent_folder !== null && folderMap[folder.fields.parent_folder]) {
+            folderMap[folder.fields.parent_folder].children.push(folderMap[folder.fields.id]);
+        }
+    });
+
+    const createTree = (parentNode, folders) => {
+        const ul = document.createElement('ul');
+        ul.classList.add('subfolders');
+        ul.classList.add('hidden');
+        previousFolders = []
+
+        folders.forEach(folder => {
+            if (folder && folder.fields) {
+                if (!previousFolders.includes(folder.fields.id)) {
+                    previousFolders.push(folder.fields.id)
+                    const li = document.createElement('li');
+                    const div = document.createElement('div');
+                    div.classList.add('arrow');
+                    div.onclick = toggleFolder;
+
+                    const span = document.createElement('span');
+                    span.textContent = '▶️';
+                    div.appendChild(span);
+
+                    const label = document.createElement('label');
+                    label.textContent = folder.fields.name || 'Unnamed Folder';
+                    div.appendChild(label);
+
+                    li.appendChild(div);
+                    ul.appendChild(li);
+
+                    if (folder.children.length > 0) {
+                        console.log(folder.children)
+                        createTree(li, folder.children);
+                    }
+                }
+            }
+        });
+        parentNode.appendChild(ul);
+
+    };
+
+    const rootFolders = Object.values(folderMap).filter(folder => folder.fields && folder.fields.parent_folder !== null);
+    createTree(parentNode, rootFolders);
+};
+
+const toggleFolder = (event) => {
     const arrow = event.currentTarget.querySelector('span');
-    const subfolders = event.currentTarget.querySelector(".subfolders");
-    arrow.textContent = arrow.textContent === '▶️' ? '▼️' : '▶️';
-    subfolders.classList.toggle('expanded');
-}
+    const subfolders = event.currentTarget.parentElement.querySelector('.subfolders');
+    
+    arrow.textContent = arrow.textContent === '🔽' ? '▶️' : '🔽';
+
+    if (subfolders) {
+        subfolders.classList.toggle('hidden');
+    }
+    
+};

@@ -312,7 +312,8 @@ body {
 
 .folder-list {
     list-style-type: none;
-    padding-left: 0;
+    text-align: left;
+    padding: 10px;
 }
 
 .parent-folder label {
@@ -320,7 +321,6 @@ body {
 }
 
 .subfolders {
-    display: none;
     list-style-type: none;
     padding-left: 20px;
 }
@@ -345,6 +345,10 @@ body {
 
 .subfolders.expanded {
     display: block;
+}
+
+.hidden{
+    display: none;
 }
 
 @media screen and (max-width: 767px) {

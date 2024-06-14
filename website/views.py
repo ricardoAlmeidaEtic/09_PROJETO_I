@@ -7,6 +7,8 @@ from django.views.generic import View
 from website.models import File, Folder
 from clonedrive.forms import FileForm, FolderForm
 from django.core.serializers import serialize
+from django.forms.models import model_to_dict
+from django.core.serializers.json import DjangoJSONEncoder
 
 class Home(View):
     template_name = 'home.html'
@@ -135,5 +137,17 @@ class Home(View):
 
 def get_all_folders(request):
     all_folders = Folder.objects.filter(user=request.user)
-    serialized_folders = serialize('json', all_folders)
+    
+    # Convert the queryset to a list of dictionaries including the id
+    folders_list = [
+        {
+            "id": folder.id,
+            "fields": model_to_dict(folder)
+        }
+        for folder in all_folders
+    ]
+
+    # Serialize the list of dictionaries to JSON
+    serialized_folders = json.dumps(folders_list, cls=DjangoJSONEncoder)
+    
     return JsonResponse(serialized_folders, safe=False)

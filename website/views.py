@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import uuid
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
@@ -9,6 +10,12 @@ from clonedrive.forms import FileForm, FolderForm
 from django.core.serializers import serialize
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
+from django.contrib.auth.models import AnonymousUser
+
+logger = logging.getLogger(name=__name__)
+
+logging.basicConfig(level=logging.DEBUG)
+
 
 class Home(View):
     template_name = 'home.html'
@@ -117,37 +124,42 @@ class Home(View):
 
         context = {}
 
-        try:
-            if(folder_id):
-                context['files'] = File.objects.filter(folder = folder_id, user = request.user)
-                context['folders'] = Folder.objects.filter(parent_folder = folder_id, user = request.user)
-                context['folder_id'] = folder_id
-            else:
-                context['files'] = File.objects.filter(folder = None, user = request.user)
-                context['folders'] = Folder.objects.filter(parent_folder = None, user = request.user)
-        except:
-            context['folders'] = None
+        logger.info(request.user)
 
-        context['folderForm'] = FolderForm()
-        context['fileForm'] = FileForm()
-        context['allFolders'] = Folder.objects.filter(user = request.user)
+        if not isinstance(request.user, AnonymousUser):
+            try:
+                if(folder_id):
+                    context['files'] = File.objects.filter(folder = folder_id, user = request.user)
+                    context['folders'] = Folder.objects.filter(parent_folder = folder_id, user = request.user)
+                    context['folder_id'] = folder_id
+                    context['folder'] = Folder.objects.filter(id = folder_id, user = request.user)
+                else:
+                    context['files'] = File.objects.filter(folder = None, user = request.user)
+                    context['folders'] = Folder.objects.filter(parent_folder = None, user = request.user)
+            except:
+                context['folders'] = None
+
+            context['folderForm'] = FolderForm()
+            context['fileForm'] = FileForm()           
+            context['allFolders'] = Folder.objects.filter(user = request.user)
 
         return render(request, self.template_name, context)
     
 
 def get_all_folders(request):
-    all_folders = Folder.objects.filter(user=request.user)
-    
-    # Convert the queryset to a list of dictionaries including the id
-    folders_list = [
-        {
-            "id": folder.id,
-            "fields": model_to_dict(folder)
-        }
-        for folder in all_folders
-    ]
+    if not isinstance(request.user, AnonymousUser):
+        all_folders = Folder.objects.filter(user=request.user) 
+        
+        # Convert the queryset to a list of dictionaries including the id
+        folders_list = [
+            {
+                "id": folder.id,
+                "fields": model_to_dict(folder)
+            }
+            for folder in all_folders
+        ]
 
-    # Serialize the list of dictionaries to JSON
-    serialized_folders = json.dumps(folders_list, cls=DjangoJSONEncoder)
+        # Serialize the list of dictionaries to JSON
+        serialized_folders = json.dumps(folders_list, cls=DjangoJSONEncoder)
     
     return JsonResponse(serialized_folders, safe=False)

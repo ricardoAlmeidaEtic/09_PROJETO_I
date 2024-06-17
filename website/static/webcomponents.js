@@ -1,4 +1,3 @@
-/**TODO HEADER */
 const itemTemplate = document.createElement("template");
 itemTemplate.innerHTML = `
 <style>
@@ -68,7 +67,7 @@ itemTemplate.innerHTML = `
 
 `;
 
-class Folder extends HTMLElement {
+class Item extends HTMLElement {
 
     static observedAttributes = ['id','name','type','date'];
     shadowRoot;
@@ -142,4 +141,55 @@ class Folder extends HTMLElement {
         }
     }
 }
-customElements.define("new-element", Folder);
+customElements.define("new-element", Item);
+
+const pathTemplate = document.createElement("template");
+pathTemplate.innerHTML = `
+<style>
+</style>
+
+<div id="pathId"></div>
+
+`;
+
+class Path extends HTMLElement {
+
+    shadowRoot;
+    #pathItem = null
+    #path = ['root'];
+    #direction = [''];
+
+    constructor() {
+        super();
+        this.shadowRoot = this.attachShadow({mode: 'closed'});
+        this.shadowRoot.appendChild(pathTemplate.content.cloneNode(true));
+        this.#pathItem = this.shadowRoot.querySelector("#pathId");
+    }
+
+    add(path,direction){
+        this.#path.push(path);
+        this.#direction.push(direction);
+        this.render();
+    }
+
+    render(){
+        console.log(this.#path);
+        console.log(this.#direction);
+
+        this.#pathItem.innerHTML = ""; // Clear only the specific container
+
+        this.#path.forEach((element, index) => {
+            let a = document.createElement("a");
+            let span = document.createElement("span");
+
+            span.innerText = "/";
+            a.innerText = element;
+            a.href = "/website/" + this.#direction[index];
+            
+            this.#pathItem.appendChild(span);
+            this.#pathItem.appendChild(a);
+        });
+    }
+
+}
+customElements.define("path-ui", Path);

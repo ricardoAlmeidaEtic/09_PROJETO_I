@@ -5,25 +5,11 @@
     <div class="container">
 
         <div class="content-left">
-            {% if allFolders|length > 0 %}
-                <div class="dropdown-tree">
-                    <ul class="folder-list">
-                        {% for parent_folder in allFolders %}
-                            {% if not parent_folder.parent_folder %}
-                                <li class="parent-folder">
-                                    <div class="arrow" onclick="toggleFolder(event)" id="{{parent_folder.id}}">
-                                        <span>▶️</span>
-                                        <label>{{ parent_folder.name }}</label>
-                                    </div>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% endif %}
         </div>
-
+        
         <div class="content-center">
+            
+
             {% if not user.is_authenticated %}
                 <div id="loggingBox">
                     <div class="buttons">
@@ -42,10 +28,11 @@
                         <form method="post" enctype="multipart/form-data" id="folderForm">
                             {% csrf_token %}
                             <input title="Folder Name" type="text" id="folder_name" placeholder="Enter folder name" required>
-                            <input type="hidden" id="folder_id" value="{{folder_id}}">
-                            <button type="submit" id="submitFolder" class="btn">Submit</button>
+                            <input type="hidden" id="folder_id" name="{% for item in folder %}{{item.name}}{% endfor %}" value="{{folder_id}}">
+                            <button type="submit" id="submitFolder" class="btn">Create</button>
                         </form>
                     </div>
+
                     
                     <div id="fileBox">
                         <h1>File</h1>
@@ -55,12 +42,13 @@
                                 <p>Drag and drop a file here or click to select a file</p>
                                 <input type="file" id="file_content" accept="*" hidden>
                             </div>
-                            <input type="hidden" id="folder_id" value="{{folder_id}}">
+                            <input type="hidden" id="folder_id" name="{% for item in folder %}{{item.name}}{% endfor %}" value="{{folder_id}}">
                             <button type="submit" id="submitFile" class="btn">Submit</button>
                         </form>
                     </div>
                 </div>
 
+                <path-ui></path-ui>
                 {% if files|length > 0 or folders|length > 0 %}
                     <ul class="drive-items">
                         {% for folder in folders %}

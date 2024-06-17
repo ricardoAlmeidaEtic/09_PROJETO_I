@@ -52,17 +52,17 @@ body {
 }
 
 .content-left {
-    width: 15%;
+    width: 20%;
     text-align: center;
 }
 
 .content-right {
-    width: 15%;
+    width: 20%;
     text-align: center;
 }
 
 .content-center {
-    width: 70%;
+    width: 60%;
     margin: 20px auto;
     background-color: #fff;
     border-radius: 10px;
@@ -308,25 +308,47 @@ body {
 
 .dropdown-tree {
     font-family: Arial, sans-serif;
-}
-
-.folder-list {
-    list-style-type: none;
     text-align: left;
-    padding: 10px;
 }
 
-.parent-folder label {
-    cursor: pointer;
-}
-
-.subfolders {
+.folder-tree ul {
     list-style-type: none;
     padding-left: 20px;
 }
 
-.subfolders li {
-    margin-bottom: 5px;
+.folder-tree ul ul {
+    margin-left: 20px;
+    border-left: 1px solid #ccc;
+    padding-left: 15px;
+}
+
+.folder-tree .folder, .folder-tree .file {
+    cursor: pointer;
+    padding: 5px;
+    display: block;
+}
+
+.folder-tree .folder:hover, .folder-tree .file:hover {
+    background-color: #f0f0f0;
+}
+
+.folder-tree .arrow::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 5px;
+    transition: transform 0.3s ease;
+}
+
+.folder-tree .arrow.open::before {
+    transform: rotate(90deg);
+}
+
+.folder-tree ul ul {
+    display: none;
+}
+
+.folder-tree ul ul.open {
+    display: block;
 }
 
 .arrow {
@@ -348,7 +370,7 @@ body {
 }
 
 .hidden{
-    display: none;
+    display: none !important;
 }
 
 @media screen and (max-width: 767px) {

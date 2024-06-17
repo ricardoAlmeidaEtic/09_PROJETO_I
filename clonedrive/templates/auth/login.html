@@ -6,6 +6,8 @@
             <form method="post">
               {% csrf_token %}
               {{ form }}
+              <a href="/reset_password">reset_password</a>
+              <br>
               <button type="submit">Login</button>
             </form>
         </div>

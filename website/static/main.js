@@ -94,6 +94,8 @@ function getFormattedDate() {
 document.addEventListener("DOMContentLoaded", () =>{
     var dropArea = document.querySelector('#dropArea');
     var fileInput = document.querySelector('#file_content');
+    var folder_id = document.querySelector('#folder_id');
+    const path_ui = document.querySelector('path-ui');
 
     dropArea.addEventListener('click', function() {
         fileInput.click();
@@ -129,85 +131,8 @@ document.addEventListener("DOMContentLoaded", () =>{
             dropArea.querySelector('p').textContent = 'Drag and drop a file here or click to select a file';
         }
     });
+
+    if(folder_id.value)
+        console.log(folder_id)
+        path_ui.add(folder_id.name,folder_id.value)
 });
-
-document.addEventListener('DOMContentLoaded', () => {
-    fetch('/website/get_all_folders/')
-        .then(response => response.json())
-        .then(data => {
-            const allFolders = JSON.parse(data);
-            const folderList = document.querySelector('.folder-list');
-            const folder = folderList.querySelector(".parent-folder");
-            buildTree(folder, allFolders);
-        })
-        .catch(error => console.error('Error fetching folders:', error));
-});
-
-const buildTree = (parentNode, folders) => {
-    let folderMap = {};
-    
-    folders.forEach(folder => {
-        if (folder.fields && folder.fields.id !== undefined) {
-            folderMap[folder.fields.id] = { ...folder, children: [] };
-        }
-    });
-
-    folders.forEach(folder => {
-        console.log(folder.fields.parent_folder)
-        if (folder.fields && folder.fields.parent_folder !== null && folderMap[folder.fields.parent_folder]) {
-            folderMap[folder.fields.parent_folder].children.push(folderMap[folder.fields.id]);
-        }
-    });
-
-    const createTree = (parentNode, folders) => {
-        const ul = document.createElement('ul');
-        ul.classList.add('subfolders');
-        ul.classList.add('hidden');
-        previousFolders = []
-
-        folders.forEach(folder => {
-            if (folder && folder.fields) {
-                if (!previousFolders.includes(folder.fields.id)) {
-                    previousFolders.push(folder.fields.id)
-                    const li = document.createElement('li');
-                    const div = document.createElement('div');
-                    div.classList.add('arrow');
-                    div.onclick = toggleFolder;
-
-                    const span = document.createElement('span');
-                    span.textContent = '▶️';
-                    div.appendChild(span);
-
-                    const label = document.createElement('label');
-                    label.textContent = folder.fields.name || 'Unnamed Folder';
-                    div.appendChild(label);
-
-                    li.appendChild(div);
-                    ul.appendChild(li);
-
-                    if (folder.children.length > 0) {
-                        console.log(folder.children)
-                        createTree(li, folder.children);
-                    }
-                }
-            }
-        });
-        parentNode.appendChild(ul);
-
-    };
-
-    const rootFolders = Object.values(folderMap).filter(folder => folder.fields && folder.fields.parent_folder !== null);
-    createTree(parentNode, rootFolders);
-};
-
-const toggleFolder = (event) => {
-    const arrow = event.currentTarget.querySelector('span');
-    const subfolders = event.currentTarget.parentElement.querySelector('.subfolders');
-    
-    arrow.textContent = arrow.textContent === '🔽' ? '▶️' : '🔽';
-
-    if (subfolders) {
-        subfolders.classList.toggle('hidden');
-    }
-    
-};

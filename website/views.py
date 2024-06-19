@@ -1,10 +1,13 @@
 import hashlib
+from http.client import HTTPResponse
 import json
 import logging
+import os
 import uuid
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.generic import View
+from clonedrive import settings
 from website.models import File, Folder
 from clonedrive.forms import FileForm, FolderForm
 from django.core.serializers import serialize
@@ -15,7 +18,6 @@ from django.contrib.auth.models import AnonymousUser
 logger = logging.getLogger(name=__name__)
 
 logging.basicConfig(level=logging.DEBUG)
-
 
 class Home(View):
     template_name = 'home.html'
@@ -33,10 +35,23 @@ class Home(View):
                 data = json.loads(request.body)
                 action = data.get('action')
 
-                if action == 'createFolder':
+                if action == 'goToFolder':
+                        
+                    if data.get('id') != '':
+                        id = data.get('id')
+                    else:
+                        id = None
+
+                    folders = Folder.objects.filter(parent_folder = id, user = request.user).values('id', 'name', 'date', 'parent_folder')
+                    files = File.objects.filter(folder = id, user = request.user).values('id', 'name', 'date', 'folder')
+                    
+                    return JsonResponse({'success': True, 'folders': list(folders), "files": list(files)})
+
+                elif action == 'createFolder':
                     try:
                         if data.get('parent_folder'):
                             parent_folder_instance = Folder.objects.get(id = data.get('parent_folder'))
+
                             Folder.objects.create(
                                 name=data.get('name'),
                                 user=user,
@@ -44,6 +59,7 @@ class Home(View):
                             ).save()
 
                         else:
+
                             Folder.objects.create(
                                 name=data.get('name'),
                                 user=user
@@ -86,6 +102,7 @@ class Home(View):
                     if folder_id:
                         try:
                             parent_folder_instance = Folder.objects.get(id = folder_id)
+
                             File.objects.create(
                                 name = file.name,
                                 file_content = file,
@@ -93,11 +110,13 @@ class Home(View):
                                 folder = parent_folder_instance,
                                 hash = hash
                             ).save()
+
                         except Folder.DoesNotExist:
                             return JsonResponse({'success': False, 'error': "Error creating file: Folder does not exist."})
                         except ValueError:
                             return JsonResponse({'success': False, 'error': "Error creating file: Invalid folder id."})
                     else:
+
                         File.objects.create(
                             name = file.name,
                             file_content = file,
@@ -117,7 +136,7 @@ class Home(View):
         else:
             return HttpResponseBadRequest('Unsupported content type')
         
-    def get(self, request, folder_id=None):
+    def get(self, request):
         
         if(request.user.is_staff):
             return redirect('/admin')
@@ -128,38 +147,29 @@ class Home(View):
 
         if not isinstance(request.user, AnonymousUser):
             try:
-                if(folder_id):
-                    context['files'] = File.objects.filter(folder = folder_id, user = request.user)
-                    context['folders'] = Folder.objects.filter(parent_folder = folder_id, user = request.user)
-                    context['folder_id'] = folder_id
-                    context['folder'] = Folder.objects.filter(id = folder_id, user = request.user)
-                else:
-                    context['files'] = File.objects.filter(folder = None, user = request.user)
-                    context['folders'] = Folder.objects.filter(parent_folder = None, user = request.user)
+                context = {
+                    'files' : File.objects.filter(folder = None, user = request.user),
+                    'folders' : Folder.objects.filter(parent_folder = None, user = request.user),
+                    'folderForm' : FolderForm(),
+                    'fileForm' : FileForm(),           
+                    'allFolders' : Folder.objects.filter(user = request.user)
+                }
             except:
-                context['folders'] = None
+                context = {
+                    'files' : None,
+                    'folders' : None,
+                    'folderForm' : FolderForm(),
+                    'fileForm' : FileForm(),           
+                    'allFolders' : None
+                }
 
-            context['folderForm'] = FolderForm()
-            context['fileForm'] = FileForm()           
-            context['allFolders'] = Folder.objects.filter(user = request.user)
 
         return render(request, self.template_name, context)
     
-
-def get_all_folders(request):
-    if not isinstance(request.user, AnonymousUser):
-        all_folders = Folder.objects.filter(user=request.user) 
-        
-        # Convert the queryset to a list of dictionaries including the id
-        folders_list = [
-            {
-                "id": folder.id,
-                "fields": model_to_dict(folder)
-            }
-            for folder in all_folders
-        ]
-
-        # Serialize the list of dictionaries to JSON
-        serialized_folders = json.dumps(folders_list, cls=DjangoJSONEncoder)
-    
-    return JsonResponse(serialized_folders, safe=False)
+    def download(request, path):
+        file_path = os.path.join("files/", path)
+        if os.path.exists(file_path):
+            with open(file_path, 'rb') as fh:
+                response = HTTPResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+                return response

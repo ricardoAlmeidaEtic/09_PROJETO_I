@@ -1,10 +1,12 @@
+let currentPage = null;
+
 window.onload = () => {
+
     document.getElementById('submitFile').onclick = async (e) => {
         e.preventDefault();
-        var formData = new FormData();
-        var fileInput = document.querySelector('#file_content');
-        var file = fileInput.files[0];
-        var folder_id = document.querySelector('#folder_id');
+        let formData = new FormData();
+        let fileInput = document.querySelector('#file_content');
+        let file = fileInput.files[0];
 
         if (!file) {
             alert("Não tem nenhum ficheiro adicionado!");
@@ -13,7 +15,7 @@ window.onload = () => {
             formData.append('name', file.name);
             formData.append('date', getFormattedDate());
             formData.append('action', 'createFile');
-            formData.append('folder',folder_id.value)
+            formData.append('folder',currentPage)
 
             await post('/website/createFile/',
                 formData,
@@ -22,12 +24,13 @@ window.onload = () => {
                 }
             );
         }
+
+        window.location.reload();
     };
 
     document.getElementById('submitFolder').onclick = async (e) => {
         e.preventDefault();
-        var folder = document.querySelector('#folder_name');
-        var folder_id = document.querySelector('#folder_id');
+        let folder = document.querySelector('#folder_name');
 
         if (!folder.value) {
             alert("Não tem nenhum nome designado para o folder!");
@@ -35,7 +38,7 @@ window.onload = () => {
             await post('/website/createFolder/',
                 JSON.stringify({
                     name: folder.value,
-                    parent_folder: parseInt(folder_id.value),
+                    parent_folder: currentPage,
                     action: 'createFolder'
                 }),
                 {
@@ -44,7 +47,10 @@ window.onload = () => {
                 }
             );
         }
+
+        window.location.reload();
     };
+
 }
 
 const post = async (url, body, headers = {}) => {
@@ -57,23 +63,23 @@ const post = async (url, body, headers = {}) => {
 
         if (response.ok) {
             const data = await response.json();
-            window.location.reload();
-            console.log(data)
+            return data;
         } else {
             throw new Error(`Error occurred while performing the operation.`);
         }
+
     } catch (error) {
         alert(error.message);
         console.error(error);
     }
 }
 
-function getCookie(name) {
-    var cookieValue = null;
+const getCookie = (name) =>{
+    let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = cookies[i].trim();
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -83,7 +89,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function getFormattedDate() {
+const getFormattedDate = () =>{
     const date = new Date();
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -91,40 +97,80 @@ function getFormattedDate() {
     return `${year}-${month}-${day}`;
 }
 
-document.addEventListener("DOMContentLoaded", () =>{
-    var dropArea = document.querySelector('#dropArea');
-    var fileInput = document.querySelector('#file_content');
-    var folder_id = document.querySelector('#folder_id');
-    const path_ui = document.querySelector('path-ui');
+const goToFolder = async(id) =>{
+    items = await post('/website/goToFolder/',
+        JSON.stringify({
+            id: id,
+            action: 'goToFolder'
+        }),
+        {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    );
+    
+    const pathUI = document.querySelector("path-ui")
+    const driveList = document.querySelector(".drive-items")
+    
+    driveList.innerHTML="";
 
-    dropArea.addEventListener('click', function() {
+    if(id != '')
+        pathUI.style.display ="block";
+
+    items.folders.forEach((element, index) => {
+        driveList.innerHTML +=`
+            <new-element id="${element.id}" name="${element.name}" date="${element.date}" type="1"></new-element>
+        `
+    });
+
+    items.files.forEach((element, index) => {
+        driveList.innerHTML +=`
+            <new-element id="${element.id}" name="${element.name}" date="${element.date}" type="0"></new-element>
+        `
+    });
+
+    currentPage = id;
+}
+
+
+document.addEventListener("DOMContentLoaded", () =>{
+    const dropArea = document.querySelector('#dropArea');
+    const fileInput = document.querySelector('#file_content');
+    
+
+    dropArea.addEventListener('click', () =>{
+        console.log("click")
         fileInput.click();
     });
 
-    dropArea.addEventListener('dragover', function(e) {
+    dropArea.addEventListener('dragover', (e) =>{
+        console.log("dragover",e)
         e.preventDefault();
         e.stopPropagation();
         dropArea.classList.add('dragover');
     });
 
-    dropArea.addEventListener('dragleave', function(e) {
+    dropArea.addEventListener('dragleave', (e) =>{
+        console.log("dragleave",e)
         e.preventDefault();
         e.stopPropagation();
         dropArea.classList.remove('dragover');
     });
 
-    dropArea.addEventListener('drop', function(e) {
+    dropArea.addEventListener('drop', (e) =>{
         e.preventDefault();
         e.stopPropagation();
-
+        
         dropArea.classList.remove('dragover');
-        var files = e.dataTransfer.files;
+        const files = e.dataTransfer.files;
         if (files.length > 0) {
-            fileInput.files = files;
+            addFiles(files)
+            console.log("adicionou 1",files)
         }
     });
 
-    fileInput.addEventListener('change', function() {
+    fileInput.addEventListener('change',  () =>{
+        console.log("adicionou 3",fileInput.files)
         if (fileInput.files.length > 0) {
             dropArea.querySelector('p').textContent = fileInput.files[0].name;
         } else {
@@ -132,7 +178,13 @@ document.addEventListener("DOMContentLoaded", () =>{
         }
     });
 
-    if(folder_id.value)
-        console.log(folder_id)
-        path_ui.add(folder_id.name,folder_id.value)
+    const addFiles = (filesContent) =>{
+        console.log("adicionou 2",filesContent)
+        if (filesContent.length > 0) {
+            dropArea.querySelector('p').textContent = filesContent[0].name;
+        } else {
+            dropArea.querySelector('p').textContent = 'Drag and drop a file here or click to select a file';
+        }
+    };
+
 });

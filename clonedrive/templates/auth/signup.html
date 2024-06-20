@@ -1,32 +1,38 @@
 {% extends 'base.html' %}
 
 {% block 'content' %}
-
     <div class="container">
-        <div id="signupBox">
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                
-                {% if form.errors %}
+        <div id="content-left"></div>
+
+        <div id="content-center">
+            <div id="signupBox">
+                <h4>Signup</h4>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    
+                    {% if form.errors %}
                     <div class="error-messages">
                         <ul>
                             {% for field, errors in form.errors.items %}
-                                <li><strong>{{ field|capfirst }}:</strong>
-                                    <ul>
-                                        {% for error in errors %}
-                                            <li>{{ error }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </li>
+                            <li><strong>{{ field|capfirst }}:</strong>
+                                <ul>
+                                    {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
                             {% endfor %}
                         </ul>
                     </div>
-                {% endif %}
-                
-                <input type="submit" name="submit" value="Signup">
-            </form>
+                    {% endif %}
+                    
+                    <button type="submit" class="signup-button">Signup</button>
+                </form>
+            </div>
         </div>
+        
+        <div id="content-right"></div>
     </div>
 
 {% endblock %}

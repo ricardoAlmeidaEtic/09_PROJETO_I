@@ -81,6 +81,7 @@ class Item extends HTMLElement {
     #name  = null;
     #type  = null;
     #date  = null;
+    #parentFolder = null;
 
     constructor() {
         super();
@@ -97,11 +98,13 @@ class Item extends HTMLElement {
             case 'name':
                 this.#name = newVal
                 break
-            case 'type':
-                this.#type = newVal
-                break
+            case 'parentFolder':
+                this.#parentFolder = newVal
             case 'date':
                 this.#date = newVal
+                break
+            case 'type':
+                this.#type = newVal
                 break
         }
 
@@ -115,7 +118,7 @@ class Item extends HTMLElement {
         const driveItemDelete = this.shadowRoot.querySelector("#delete");
         const driveItemDownload = this.shadowRoot.querySelector("#download");
 
-        this.onclick = () =>{
+        driveLink.onclick = () =>{
             this.dispatchEvent(new CustomEvent('pathEvent', {
                 detail: { item:this }, 
                 bubbles: true, 
@@ -137,15 +140,17 @@ class Item extends HTMLElement {
         driveItemDownload.onclick = () => this.download(this);
     }
 
-    async delete(element){
+    async delete(element) {
         let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
-
+        
         if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
-            element.innerHTML=""
+            element.remove();
             
+            const id = element.#id;
+    
             await post(`/website/delete${typeText}/`,
                 JSON.stringify({
-                    id: element.#id,
+                    id: id,
                     action: `delete${typeText}`
                 }),
                 {
@@ -157,7 +162,7 @@ class Item extends HTMLElement {
     }
 
     async download(element){
-        let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
+        /*let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
 
         if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
             element.innerHTML=""
@@ -172,7 +177,8 @@ class Item extends HTMLElement {
                     'X-CSRFToken': getCookie('csrftoken')
                 }
             );
-        }
+        }*/
+       console.log("downloaded", element)
     }
 }
 customElements.define("new-element", Item);
@@ -195,6 +201,7 @@ pathTemplate.innerHTML = `
     #pathContent img{
         width: 50px;
     }
+
 </style>
 
 <div id="pathContent">

@@ -1,15 +1,21 @@
 {% extends 'base.html' %}
 {% block 'content' %}
-    <div class="container">
+<div class="container">
+
+    <div class="content-left"></div>
+    
+    <div class="content-center">
         <div id="loginBox">
             <h4>Login</h4>
             <form method="post">
-              {% csrf_token %}
-              {{ form }}
-              <a href="/reset_password">reset_password</a>
-              <br>
-              <button type="submit">Login</button>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <a href="/reset_password" class="reset-link">Forgot Password?</a>
+                <button type="submit" class="login-button">Login</button>
             </form>
         </div>
     </div>
+
+    <div class="content-right"></div>
+</div>
 {%endblock%}

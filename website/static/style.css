@@ -140,16 +140,144 @@ body {
     align-items: center;
 }
 
-#signupBox{
+#signupBox {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center;
+}
+
+#signupBox h4 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#signupBox form {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#loginBox{
+#signupBox form p {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.error-messages {
+    width: 100%;
+    margin-bottom: 20px;
+    color: #d9534f;
+    text-align: left;
+}
+
+.error-messages ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.error-messages li {
+    margin-bottom: 10px;
+}
+
+.error-messages li strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.signup-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #28a745;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.signup-button:hover {
+    background-color: #218838;
+}
+
+input[type="text"], input[type="password"], input[type="email"] {
+    width: 100%;
+    margin: 5px 0 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 10px;
+    margin-left: -10px;
+}
+
+#loginBox {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center;
+}
+
+#loginBox h4 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#loginBox form {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+#loginBox form p {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.reset-link {
+    font-size: 0.9rem;
+    color: #007BFF;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: color 0.3s;
+}
+
+.reset-link:hover {
+    color: #0056b3;
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-button:hover {
+    background-color: #0056b3;
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    margin: 5px 0 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    height: 30px;
 }
 
 .drive-items {
@@ -185,17 +313,6 @@ body {
 
 .button:hover {
     background-color: #0056b3;
-}
-
-#loggingBox{
-    display: flex;
-    justify-content: center;
-    width: 100%;
-}
-
-#loggingBox img{
-    width: 50%;
-    justify-content: center;
 }
 
 .h1404 {
@@ -375,6 +492,57 @@ body {
 
 path-ui{
     display: none;
+}
+
+#loggingBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    height: 100%;
+    width: 100%;
+}
+
+#loggingBox .message {
+    margin-bottom: 20px;
+    width:50%;
+}
+
+#loggingBox .message p {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+}
+
+#loggingBox .buttonsBox {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#loggingBox .button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+#loggingBox .button:hover {
+    background-color: #0056b3;
+}
+
+#loggingBox .Logginglogo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 70px;
 }
 
 @media screen and (max-width: 767px) {

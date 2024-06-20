@@ -5,21 +5,20 @@
     <div class="container">
 
         <div class="content-left">
+
         </div>
         
         <div class="content-center">
-            
-
             {% if not user.is_authenticated %}
                 <div id="loggingBox">
-                    <div class="buttons">
-                        <span>Não se encontra conectado na nossa plataforma, para conseguir aceder a mesma por-favor faça login ou registe-se.</span>
-                        <div class="buttonsBox">
-                            <a href="{% url 'login' %}" class="button">Login</a>
-                            <a href="{% url 'signup' %}" class="button">Signup</a>
-                        </div>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo" class="Logginglogo">
+                    <div class="message">
+                        <p>Você não está conectado na nossa plataforma. Para conseguir acesso, por favor faça login ou registre-se.</p>
                     </div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo">
+                    <div class="buttonsBox">
+                        <a href="{% url 'login' %}" class="button">Login</a>
+                        <a href="{% url 'signup' %}" class="button">Signup</a>
+                    </div>
                 </div>
             {% else %}
                 <div id="uploadBox">
@@ -53,11 +52,11 @@
                 {% if files|length > 0 or folders|length > 0 %}
                     <ul class="drive-items">
                         {% for folder in folders %}
-                            <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" type="1"></new-element>
+                            <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" parentFolder="{{ folder.parent_folder }}" type="1"></new-element>
                         {% endfor %}
 
                         {% for file in files %}
-                            <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" type="0"></new-element>
+                            <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" parentFolder="{{ file.folder }}" type="0"></new-element>
                         {% endfor %}
                     </ul>
 

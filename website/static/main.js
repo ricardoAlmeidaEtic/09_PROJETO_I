@@ -4,9 +4,10 @@ window.onload = () => {
     const dropArea = document.querySelector('#dropArea');
     const fileInput = document.querySelector('#file_content');
     const folderInput = document.querySelector('#folder_name');
+    const modal = document.getElementById("myModal");
+    const span = document.getElementsByClassName("close")[0];
 
     const addFiles = (filesContent) => {
-        console.log("adicionou 2", filesContent);
         dropArea.querySelector('p').textContent = filesContent.length > 0 ? filesContent[0].name : 'Drag and drop a file here or click to select a file';
     };
 
@@ -55,19 +56,16 @@ window.onload = () => {
     };
 
     const handleDropAreaClick = () => {
-        console.log("click");
         fileInput.click();
     };
 
     const handleDropAreaDragOver = (e) => {
-        console.log("dragover", e);
         e.preventDefault();
         e.stopPropagation();
         dropArea.classList.add('dragover');
     };
 
     const handleDropAreaDragLeave = (e) => {
-        console.log("dragleave", e);
         e.preventDefault();
         e.stopPropagation();
         dropArea.classList.remove('dragover');
@@ -81,14 +79,23 @@ window.onload = () => {
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             addFiles(files);
-            console.log("adicionou 1", files);
         }
     };
 
     const handleFileInputChange = () => {
-        console.log("adicionou 3", fileInput.files);
         addFiles(fileInput.files);
     };
+
+
+    span.onclick = () => {
+        modal.style.display = "none";
+    }
+
+    window.onclick = (event) => {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
 
     document.getElementById('submitFile').onclick = handleFileSubmit;
     document.getElementById('submitFolder').onclick = handleFolderSubmit;
@@ -133,7 +140,8 @@ const getFormattedDate = () => {
 };
 
 const goToFolder = async (id) => {
-    console.log(id);
+    const pathUI = document.querySelector("path-ui");
+    const driveList = document.querySelector(".drive-items");
 
     const items = await post('/website/goToFolder/', JSON.stringify({
         id: id,
@@ -143,8 +151,6 @@ const goToFolder = async (id) => {
         'X-CSRFToken': getCookie('csrftoken')
     });
 
-    const pathUI = document.querySelector("path-ui");
-    const driveList = document.querySelector(".drive-items");
 
     driveList.innerHTML = "";
 
@@ -154,15 +160,22 @@ const goToFolder = async (id) => {
 
     items.folders.forEach((element) => {
         driveList.innerHTML += `
-            <new-element id="${element.id}" name="${element.name}" parentFolder="${element.parent_folder}" date="${element.date}" type="1"></new-element>
+            <new-element id="${element.id}" name="${element.name}" parentfolder="${element.parent_folder}" date="${element.date}" type="1"></new-element>
         `;
     });
 
     items.files.forEach((element) => {
         driveList.innerHTML += `
-            <new-element id="${element.id}" name="${element.name}" parentFolder="${element.folder}" date="${element.date}" type="0"></new-element>
+            <new-element id="${element.id}" name="${element.name}" parentfolder="${element.folder}" date="${element.date}" type="0"></new-element>
         `;
     });
 
+    if(items.files.length === 0 && items.folders.length === 0){
+        driveList.innerHTML+=`
+            <h1 style="margin-top:100px;">Não tem nenhum ficheiro ou folder criado.</h1>
+        `
+    }
+
     currentPage = id;
 };
+

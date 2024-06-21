@@ -7,5 +7,7 @@ urlpatterns = [
     path("createFile/", Home.as_view(), name="home"),
     path("deleteFolder/", Home.as_view(), name="home"),
     path("deleteFile/", Home.as_view(), name="home"),
+    path("downloadFolder/", Home.as_view(), name="home"),
+    path("downloadFile/", Home.as_view(), name="home"),
     path("goToFolder/", Home.as_view(), name="home")
 ]

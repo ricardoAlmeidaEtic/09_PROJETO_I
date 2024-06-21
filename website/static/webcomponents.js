@@ -7,66 +7,99 @@ itemTemplate.innerHTML = `
         border-bottom: 1px solid #ddd;
         padding: 10px;
         cursor: pointer;
+        flex-wrap: wrap;
     }
 
-    .drive-item a{
+    .drive-item a {
         display: flex;
         align-items: center;
         text-decoration: none; 
-        color:black;
+        color: black;
+        flex: 1;
     }
 
-    .drive-item:hover{
+    .drive-item:hover {
         background-color: lightgray;
     }
 
     .drive-item-icon {
         width: 40px;
-        height: 40px;
         background-color: #eee;
         margin-right: 10px;
+        flex-shrink: 0;
     }
 
-    .drive-item-icon img{
+    .drive-item-icon img {
         width: 100%;
     }
 
     .drive-item-details {
         flex: 1;
+        min-width: 0;
+        overflow: overlay;
     }
 
     .drive-item-name {
         font-weight: bold;
+        word-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .drive-item-date {
         color: #666;
+        white-space: nowrap;
     }
 
-    .drive-item-delete{
+    .drive-item-delete {
         background: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .drive-item-download {
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        flex-shrink: 0;
     }
 </style>
 
 <li class="drive-item">
     <a id="drive-link" style="width: 100%;">
+
         <div class="drive-item-icon">
             <img>
         </div>
+
         <div class="drive-item-details">
             <span class="drive-item-name"></span>
             <span class="drive-item-date"></span>
         </div>
-        <a id="download">
+
+        <div id="move">
+            <div class="drive-item-icon drive-item-download">
+                <img src="https://cdn.iconscout.com/icon/free/png-256/free-move-183-439500.png">
+            </div>
+        </div>
+
+        <div id="download">
             <div class="drive-item-icon drive-item-download">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-download-1767976-1502312.png">
             </div>
-        </a>
-        <a id="delete">
+        </div>
+
+        <div id="delete">
             <div class="drive-item-icon drive-item-delete">
                 <img src="https://cdn.iconscout.com/icon/free/png-256/free-trash-1767922-1502175.png">
             </div>
-        </a>
+        </div>
+
     </a>
 </li>
 
@@ -74,14 +107,14 @@ itemTemplate.innerHTML = `
 
 class Item extends HTMLElement {
 
-    static observedAttributes = ['id','name','type','date'];
+    static observedAttributes = ['id','name','type','date','parentfolder'];
     shadowRoot;
     folder;
     #id = null;
     #name  = null;
     #type  = null;
     #date  = null;
-    #parentFolder = null;
+    #parentfolder = null;
 
     constructor() {
         super();
@@ -98,8 +131,9 @@ class Item extends HTMLElement {
             case 'name':
                 this.#name = newVal
                 break
-            case 'parentFolder':
-                this.#parentFolder = newVal
+            case 'parentfolder':
+                this.#parentfolder = newVal
+                break
             case 'date':
                 this.#date = newVal
                 break
@@ -117,37 +151,43 @@ class Item extends HTMLElement {
         const driveItemDetails = this.shadowRoot.querySelector(".drive-item-details");
         const driveItemDelete = this.shadowRoot.querySelector("#delete");
         const driveItemDownload = this.shadowRoot.querySelector("#download");
+        const driveItemMove = this.shadowRoot.querySelector("#move");
 
-        driveLink.onclick = () =>{
-            this.dispatchEvent(new CustomEvent('pathEvent', {
-                detail: { item:this }, 
-                bubbles: true, 
-                composed: true 
-            }));
-
-            goToFolder(this.#id);
-        }
-
-        if(this.#type == 1)
+        if(this.#type == 1) {
             driveItemIcon.children[0].src = "https://cdn.iconscout.com/icon/free/png-256/free-folder-1166-470303.png"
-        else
+            driveItemDownload.innerHTML = ""
+        } else {
             driveItemIcon.children[0].src = "https://cdn.iconscout.com/icon/free/png-256/free-vlc-media-player-3-735027.png"
+            driveItemDownload.onclick = () => this.download(this);
+        }
+        driveItemDelete.onclick = (e) => this.delete(e,this);
+        driveItemMove.onclick = (e) => this.move(e,this);
+
+        driveLink.onclick = (e) =>{
+            if(this.#type == 1){
+                this.dispatchEvent(new CustomEvent('pathEvent', {
+                    detail: { item:this }, 
+                    bubbles: true, 
+                    composed: true 
+                }));
+
+                goToFolder(this.#id);
+            }
+        }
 
         driveItemDetails.children[0].innerText = this.#name
         driveItemDetails.children[1].innerText = this.#date
-
-        driveItemDelete.onclick = () => this.delete(this);
-        driveItemDownload.onclick = () => this.download(this);
     }
 
-    async delete(element) {
+    async delete(event,element) {
+        event.stopPropagation();
+        event.preventDefault();
         let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
         
         if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
-            element.remove();
-            
             const id = element.#id;
-    
+            const parentFolder = element.#parentfolder;
+            
             await post(`/website/delete${typeText}/`,
                 JSON.stringify({
                     id: id,
@@ -158,27 +198,61 @@ class Item extends HTMLElement {
                     'X-CSRFToken': getCookie('csrftoken')
                 }
             );
+            element.remove();
+            
+            if(parentFolder !== 'null')
+                goToFolder(parentFolder)
         }
     }
 
-    async download(element){
-        /*let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
-
-        if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
-            element.innerHTML=""
-            
-            await post(`/website/delete${typeText}/`,
-                JSON.stringify({
-                    id: element.#id,
-                    action: `delete${typeText}`
-                }),
-                {
+    async download(event,element) {
+        event.stopPropagation();
+        event.preventDefault();
+        let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
+        const id = element.#id;
+    
+        try {
+            const response = await fetch(`/website/download${typeText}/`, {
+                method: 'POST',
+                headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
-                }
-            );
-        }*/
-       console.log("downloaded", element)
+                },
+                body: JSON.stringify({
+                    id: id,
+                    action: `download${typeText}`
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+    
+            const blob = await response.blob();
+            const contentDisposition = response.headers.get('Content-Disposition');
+            const filename = contentDisposition.split('filename=')[1].replace(/"/g, '');
+    
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+
+            document.body.appendChild(a);
+
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        }
+    }
+
+    async move(event,element) {
+        event.stopPropagation();
+        event.preventDefault();
+        var modal = document.getElementById("myModal");
+        modal.style.display = "block";
     }
 }
 customElements.define("new-element", Item);
@@ -264,7 +338,6 @@ class Path extends HTMLElement {
             if(this.#path.length === 0 && this.#direction.length === 0) {
                 const pathUI = document.querySelector("path-ui")
                 pathUI.style.display = "none";
-                console.log("apagou!",pathUI)
             } else {
                 this.render();
             }
@@ -277,15 +350,6 @@ class Path extends HTMLElement {
             this.add(this.#path[index], this.#direction[index]);
         } else {
             for (let pos = this.#path.length - 1; pos > index; pos--) {
-                console.log("===========================================");
-                console.log("removed [", pos, "]");
-                console.log("===========================================");
-                console.log("this.#direction[pos]", this.#direction[pos]);
-                console.log("direction", this.#direction[index]);
-                console.log("removed - pos", pos);
-                console.log("array path: ", this.#path);
-                console.log("array direction: ", this.#direction);
-
                 this.#path.splice(pos, 1);
                 this.#direction.splice(pos, 1);
             }

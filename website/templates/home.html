@@ -52,11 +52,11 @@
                 {% if files|length > 0 or folders|length > 0 %}
                     <ul class="drive-items">
                         {% for folder in folders %}
-                            <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" parentFolder="{{ folder.parent_folder }}" type="1"></new-element>
+                            <new-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" parentfolder="{{ folder.parent_folder }}" type="1"></new-element>
                         {% endfor %}
 
                         {% for file in files %}
-                            <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" parentFolder="{{ file.folder }}" type="0"></new-element>
+                            <new-element id="{{ file.id }}" name="{{ file.name }}" date="{{ file.date }}" parentfolder="{{ file.folder }}" type="0"></new-element>
                         {% endfor %}
                     </ul>
 
@@ -69,6 +69,15 @@
 
         <div class="content-right">
 
+        </div>
+
+        <div id="myModal" class="modal">
+
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p>Some text in the Modal..</p>
+            </div>
+          
         </div>
     </div>
 {% endblock %}

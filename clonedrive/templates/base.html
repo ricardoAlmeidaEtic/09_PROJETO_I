@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   {% load static%}
   <link rel="stylesheet" href="{% static 'style.css' %}">
+  <title>{% block title %}{% endblock %}</title>
   {% if user.is_authenticated %}
     <script src="{% static 'main.js' %}"></script>
     <script src="{% static 'webcomponents.js' %}" type="module"></script>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Home{% for item in folder %} - {{item.name}}{% endfor %}{% endblock %}
 {% load static%}
 {% block 'content' %}
     <div class="container">
@@ -27,7 +27,6 @@
                         <form method="post" enctype="multipart/form-data" id="folderForm">
                             {% csrf_token %}
                             <input title="Folder Name" type="text" id="folder_name" placeholder="Enter folder name" required>
-                            <input type="hidden" id="folder_id" name="{% for item in folder %}{{item.name}}{% endfor %}" value="{{folder_id}}">
                             <button type="submit" id="submitFolder" class="btn">Create</button>
                         </form>
                     </div>
@@ -41,7 +40,6 @@
                                 <p>Drag and drop a file here or click to select a file</p>
                                 <input type="file" id="file_content" accept="*" hidden>
                             </div>
-                            <input type="hidden" id="folder_id" name="{% for item in folder %}{{item.name}}{% endfor %}" value="{{folder_id}}">
                             <button type="submit" id="submitFile" class="btn">Submit</button>
                         </form>
                     </div>
@@ -75,7 +73,26 @@
 
             <div class="modal-content">
                 <span class="close">&times;</span>
-                <p>Some text in the Modal..</p>
+                
+                <br><br>
+                
+                <select-path-ui></select-path-ui>
+
+                {% if files|length > 0 or folders|length > 0 %}
+                    <ul class="drive-items-select">
+                        {% for folder in folders %}
+                            <select-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" parentfolder="{{ folder.parent_folder }}"></select-element>
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+                    <h1 style="margin-top:200px;">Não tem nenhum ficheiro ou folder criado.</h1>
+                    
+                {% endif %}
+                <div style="margin-top: 10px; margin-bottom:10px;">
+                    <button style="background-color: lightgreen; float: right;" id="confirmModal">Confirmar</button>
+                    <button style="background-color: darkred; float: right;" id="closeModal">Cancelar</button>
+                </div>
             </div>
           
         </div>

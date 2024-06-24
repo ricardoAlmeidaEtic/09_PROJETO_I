@@ -1,4 +1,5 @@
 let currentPage = '';
+let currentPageSelect = '';
 
 window.onload = () => {
     const dropArea = document.querySelector('#dropArea');
@@ -6,6 +7,9 @@ window.onload = () => {
     const folderInput = document.querySelector('#folder_name');
     const modal = document.getElementById("myModal");
     const span = document.getElementsByClassName("close")[0];
+    const closeModal = document.querySelector("#closeModal");
+    const confirmModal = document.querySelector("#confirmModal");
+    let previousId = null;
 
     const addFiles = (filesContent) => {
         dropArea.querySelector('p').textContent = filesContent.length > 0 ? filesContent[0].name : 'Drag and drop a file here or click to select a file';
@@ -86,10 +90,46 @@ window.onload = () => {
         addFiles(fileInput.files);
     };
 
-
     span.onclick = () => {
         modal.style.display = "none";
     }
+    
+    closeModal.addEventListener("click", () =>{
+        modal.style.display = "none";
+    });
+
+    confirmModal.addEventListener("click",(e) =>{
+        const list = document.querySelector('.drive-items-select')
+        list.querySelectorAll('select-element').forEach(async (node) => {
+            let checkbox = node.shadowRoot.querySelector('#selectItem');
+            if(checkbox.checked){
+                await post('/website/changeLocation/', JSON.stringify({
+                    id: previousId,
+                    parentId : node.id,
+                    action: 'changeLocation'
+                }), {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                });
+            }
+        });
+
+        modal.style.display = "none";
+
+        list.querySelectorAll('select-element').forEach((node) => {
+            let checkbox = node.shadowRoot.querySelector('#selectItem');
+            checkbox.checked = false
+        });
+
+        this.dispatchEvent(new CustomEvent('pathClearEvent', {
+            detail: { item:this }, 
+            bubbles: true, 
+            composed: true 
+        }));
+
+        goToFolder(null);
+
+    });
 
     window.onclick = (event) => {
         if (event.target == modal) {
@@ -97,6 +137,10 @@ window.onload = () => {
         }
     }
 
+    document.addEventListener('selectPreviousId', function(event) {
+        previousId = event.detail.id;
+    });
+    
     document.getElementById('submitFile').onclick = handleFileSubmit;
     document.getElementById('submitFolder').onclick = handleFolderSubmit;
     dropArea.addEventListener('click', handleDropAreaClick);
@@ -140,6 +184,7 @@ const getFormattedDate = () => {
 };
 
 const goToFolder = async (id) => {
+    console.log("abriu", id)
     const pathUI = document.querySelector("path-ui");
     const driveList = document.querySelector(".drive-items");
 
@@ -154,8 +199,11 @@ const goToFolder = async (id) => {
 
     driveList.innerHTML = "";
 
-    if (id !== '') {
+    if (id !== null) {
         pathUI.style.display = "block";
+    }else{
+        pathUI.style.display = "none";
+        pathUI.clear()
     }
 
     items.folders.forEach((element) => {
@@ -177,5 +225,36 @@ const goToFolder = async (id) => {
     }
 
     currentPage = id;
+};
+
+const goToFolderSelect = async (id) => {
+    const pathUI = document.querySelector("select-path-ui");
+    const driveList = document.querySelector(".drive-items-select");
+
+    const items = await post('/website/goToFolder/', JSON.stringify({
+        id: id,
+        action: 'goToFolder'
+    }), {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+    });
+
+
+    driveList.innerHTML = "";
+
+    if (id !== null) {
+        pathUI.style.display = "block";
+    }else{
+        pathUI.style.display = "none";
+        pathUI.clear();
+    }
+
+    items.folders.forEach((element) => {
+        driveList.innerHTML += `
+            <select-element id="${element.id}" name="${element.name}" parentfolder="${element.parent_folder}" date="${element.date}" type="1"></select-element>
+        `;
+    });
+
+    currentPageSelect = id;
 };
 

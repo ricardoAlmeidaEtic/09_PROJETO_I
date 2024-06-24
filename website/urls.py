@@ -9,5 +9,6 @@ urlpatterns = [
     path("deleteFile/", Home.as_view(), name="home"),
     path("downloadFolder/", Home.as_view(), name="home"),
     path("downloadFile/", Home.as_view(), name="home"),
-    path("goToFolder/", Home.as_view(), name="home")
+    path("goToFolder/", Home.as_view(), name="home"),
+    path("changeLocation/", Home.as_view(), name="home")
 ]

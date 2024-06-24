@@ -85,28 +85,27 @@ def download_folder(data):
     #else:
     return HttpResponseBadRequest('Folder not found')
 
-def move_file(data):
-    file_id = data.get('id')
-    folder_id = data.get('folder')
-    logger.info(f"FILE: {file_id}")
+def change_location(data):
+    id = data.get('id')
+    parentFolder = data.get('parentId')
+    type = data.get('type')
 
     try:
-        File.objects.get(id=file_id).update(folder=folder_id)
-    except File.DoesNotExist:
-        return HttpResponseBadRequest('File not found')
-    except Exception as e:
-        logger.error(f'Error downloading file: {str(e)}')
-        return HttpResponseBadRequest('Error downloading file')
-    
-def move_folder(data):
-    folder_id = data.get('id')
-    parent_folder_id = data.get('folder')
-    logger.info(f"FOLDER: {folder_id}")
+        if(type == 1):
+            parent_folder = Folder.objects.get(id = parentFolder)
+            current_folder = Folder.objects.get(id = id)
 
-    try:
-        Folder.objects.get(id=folder_id).update(parent_folder=parent_folder_id)
+            current_folder.parent_folder = parent_folder
+            current_folder.save()
+        else:
+            parent_folder = Folder.objects.get(id = parentFolder)
+            current_file = File.objects.get(id = id)
+
+            current_file.folder = parent_folder
+            current_file.save()
+        return JsonResponse({'success': True})
     except File.DoesNotExist:
-        return HttpResponseBadRequest('File not found')
+        return HttpResponseBadRequest('Folder not found')
     except Exception as e:
-        logger.error(f'Error downloading file: {str(e)}')
-        return HttpResponseBadRequest('Error downloading file')
+        logger.error(f'Error downloading location: {str(e)}')
+        return HttpResponseBadRequest('Error downloading changing location')

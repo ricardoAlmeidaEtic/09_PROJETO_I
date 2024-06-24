@@ -33,20 +33,31 @@ class Home(View):
             data = json.loads(request.body)
             action = data.get('action')
 
-            if action == 'goToFolder':
-                return utils.go_to_folder(data, user)
-            elif action == 'createFolder':
-                return utils.create_folder(data, user)
-            elif action == 'deleteFile':
-                return utils.delete_file(data)
-            elif action == 'deleteFolder':
-                return utils.delete_folder(data)
-            elif action == 'downloadFolder':
-                return utils.download_folder(data)
-            elif action == 'downloadFile':
-                return utils.download_file(data)
-            else:
-                return HttpResponseBadRequest('Invalid action')
+            match action:
+                case 'changeLocation':
+                    return utils.change_location(data)
+                
+                case 'goToFolder':
+                    return utils.go_to_folder(data, user)
+                
+                case 'createFolder':
+                    return utils.create_folder(data, user)
+                
+                case 'deleteFile':
+                    return utils.delete_file(data)
+                
+                case 'deleteFolder':
+                    return utils.delete_folder(data)
+                
+                case 'downloadFolder':
+                    return utils.download_folder(data)
+                
+                case 'downloadFile':
+                    return utils.download_file(data)
+                
+                case _:
+                    return HttpResponseBadRequest('Invalid action')
+                
         except json.JSONDecodeError:
             return HttpResponseBadRequest('Invalid JSON')
 
@@ -66,10 +77,12 @@ class Home(View):
         return render(request, self.template_name, context)
 
     def get_context_data(self, user):
+
         context = {
             'folderForm': FolderForm(),
             'fileForm': FileForm(),
         }
+
         if not isinstance(user, AnonymousUser):
             try:
                 context.update({

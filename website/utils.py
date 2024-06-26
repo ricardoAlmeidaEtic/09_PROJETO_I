@@ -77,35 +77,30 @@ def download_file(data):
         logger.error(f'Error downloading file: {str(e)}')
         return HttpResponseBadRequest('Error downloading file')
     
-def download_folder(data):
-    logger.info("FOLDER: " + data.get('id'))
-    #file_path = os.path.join('files/', path)
-    #if os.path.exists(file_path):
-    #    return FileResponse(open(file_path, 'rb'), content_type='application/vnd.ms-excel', filename=os.path.basename(file_path))
-    #else:
-    return HttpResponseBadRequest('Folder not found')
-
 def change_location(data):
     id = data.get('id')
     parentFolder = data.get('parentId')
     type = data.get('type')
 
     try:
-        if(type == 1):
+        if type == 1:
+            logger.info(type)
+            logger.info(id)
+            logger.info(parentFolder)
             parent_folder = Folder.objects.get(id = parentFolder)
             current_folder = Folder.objects.get(id = id)
 
             current_folder.parent_folder = parent_folder
             current_folder.save()
         else:
+            logger.info(type)
+            logger.info(id)
+            logger.info(parentFolder)
             parent_folder = Folder.objects.get(id = parentFolder)
             current_file = File.objects.get(id = id)
 
             current_file.folder = parent_folder
             current_file.save()
         return JsonResponse({'success': True})
-    except File.DoesNotExist:
-        return HttpResponseBadRequest('Folder not found')
     except Exception as e:
-        logger.error(f'Error downloading location: {str(e)}')
-        return HttpResponseBadRequest('Error downloading changing location')
+        return JsonResponse({'success': False,"error":str(e)})

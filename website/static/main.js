@@ -1,18 +1,19 @@
 let currentPage = '';
 let currentPageSelect = '';
+let previousElement = null;
 
 window.onload = () => {
     const dropArea = document.querySelector('#dropArea');
     const fileInput = document.querySelector('#file_content');
     const folderInput = document.querySelector('#folder_name');
-    const modal = document.getElementById("myModal");
+    const modal = document.getElementById("ModalMove");
     const span = document.getElementsByClassName("close")[0];
     const closeModal = document.querySelector("#closeModal");
     const confirmModal = document.querySelector("#confirmModal");
-    let previousId = null;
 
     const addFiles = (filesContent) => {
         dropArea.querySelector('p').textContent = filesContent.length > 0 ? filesContent[0].name : 'Drag and drop a file here or click to select a file';
+        fileInput.files[0] = filesContent[0];
     };
 
     const handleFileSubmit = async (e) => {
@@ -81,6 +82,7 @@ window.onload = () => {
         dropArea.classList.remove('dragover');
 
         const files = e.dataTransfer.files;
+        console.log("files",files)
         if (files.length > 0) {
             addFiles(files);
         }
@@ -90,6 +92,7 @@ window.onload = () => {
         addFiles(fileInput.files);
     };
 
+    
     span.onclick = () => {
         modal.style.display = "none";
     }
@@ -97,49 +100,49 @@ window.onload = () => {
     closeModal.addEventListener("click", () =>{
         modal.style.display = "none";
     });
-
+    
     confirmModal.addEventListener("click",(e) =>{
         const list = document.querySelector('.drive-items-select')
         list.querySelectorAll('select-element').forEach(async (node) => {
             let checkbox = node.shadowRoot.querySelector('#selectItem');
             if(checkbox.checked){
-                await post('/website/changeLocation/', JSON.stringify({
-                    id: previousId,
+                console.log("previousElement.id",previousElement.id)
+                let result = await post('/website/changeLocation/', JSON.stringify({
+                    id: previousElement.id,
                     parentId : node.id,
+                    type : previousElement.type,
                     action: 'changeLocation'
                 }), {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 });
+                
+                console.log("result",result)
             }
         });
-
+        
         modal.style.display = "none";
-
+        
         list.querySelectorAll('select-element').forEach((node) => {
             let checkbox = node.shadowRoot.querySelector('#selectItem');
             checkbox.checked = false
         });
-
+        
         this.dispatchEvent(new CustomEvent('pathClearEvent', {
             detail: { item:this }, 
             bubbles: true, 
             composed: true 
         }));
-
+        
         goToFolder(null);
-
+        
     });
-
+    
     window.onclick = (event) => {
         if (event.target == modal) {
             modal.style.display = "none";
         }
     }
-
-    document.addEventListener('selectPreviousId', function(event) {
-        previousId = event.detail.id;
-    });
     
     document.getElementById('submitFile').onclick = handleFileSubmit;
     document.getElementById('submitFolder').onclick = handleFolderSubmit;
@@ -157,11 +160,11 @@ const post = async (url, body, headers = {}) => {
             body: body,
             headers: headers
         });
-
+        
         if (!response.ok) {
             throw new Error('Error occurred while performing the operation.');
         }
-
+        
         return await response.json();
     } catch (error) {
         alert(error.message);
@@ -184,10 +187,9 @@ const getFormattedDate = () => {
 };
 
 const goToFolder = async (id) => {
-    console.log("abriu", id)
     const pathUI = document.querySelector("path-ui");
     const driveList = document.querySelector(".drive-items");
-
+    
     const items = await post('/website/goToFolder/', JSON.stringify({
         id: id,
         action: 'goToFolder'
@@ -195,42 +197,43 @@ const goToFolder = async (id) => {
         'Content-Type': 'application/json',
         'X-CSRFToken': getCookie('csrftoken')
     });
-
-
+    
     driveList.innerHTML = "";
-
+    
     if (id !== null) {
         pathUI.style.display = "block";
     }else{
         pathUI.style.display = "none";
         pathUI.clear()
     }
-
+    
     items.folders.forEach((element) => {
         driveList.innerHTML += `
-            <new-element id="${element.id}" name="${element.name}" parentfolder="${element.parent_folder}" date="${element.date}" type="1"></new-element>
+        <new-element id="${element.id}" name="${element.name}" parentfolder="${element.parent_folder}" date="${element.date}" type="1"></new-element>
         `;
     });
-
+    
     items.files.forEach((element) => {
         driveList.innerHTML += `
-            <new-element id="${element.id}" name="${element.name}" parentfolder="${element.folder}" date="${element.date}" type="0"></new-element>
+        <new-element id="${element.id}" name="${element.name}" parentfolder="${element.folder}" date="${element.date}" type="0"></new-element>
         `;
     });
-
+    
     if(items.files.length === 0 && items.folders.length === 0){
         driveList.innerHTML+=`
-            <h1 style="margin-top:100px;">Não tem nenhum ficheiro ou folder criado.</h1>
+        <h1 style="margin-top:100px;">Não tem nenhum ficheiro ou folder criado.</h1>
         `
     }
-
     currentPage = id;
 };
 
-const goToFolderSelect = async (id) => {
+const goToFolderSelect = async (id, clicked = null) => {
     const pathUI = document.querySelector("select-path-ui");
     const driveList = document.querySelector(".drive-items-select");
-
+    
+    if(clicked !== null)
+        currentPageSelect = clicked;
+    
     const items = await post('/website/goToFolder/', JSON.stringify({
         id: id,
         action: 'goToFolder'
@@ -238,23 +241,34 @@ const goToFolderSelect = async (id) => {
         'Content-Type': 'application/json',
         'X-CSRFToken': getCookie('csrftoken')
     });
-
-
+    
     driveList.innerHTML = "";
-
+    
     if (id !== null) {
         pathUI.style.display = "block";
     }else{
         pathUI.style.display = "none";
-        pathUI.clear();
+        pathUI.clear()
     }
-
+    
+    console.log("items.folders", items.folders)
+    
     items.folders.forEach((element) => {
-        driveList.innerHTML += `
+        if(parseInt(element.id) !== parseInt(currentPageSelect)){
+            driveList.innerHTML += `
             <select-element id="${element.id}" name="${element.name}" parentfolder="${element.parent_folder}" date="${element.date}" type="1"></select-element>
-        `;
+            `;
+        }
     });
-
-    currentPageSelect = id;
+    
+    if(items.files.length === 0 && items.folders.length === 0){
+        driveList.innerHTML+=`
+        <h1 style="margin-top:100px;">Não tem nenhum ficheiro ou folder criado.</h1>
+        `
+    }
+    currentPage = id;
 };
 
+const setPreviousElement = (element) =>{
+    previousElement = element;
+};

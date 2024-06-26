@@ -252,16 +252,10 @@ class Item extends HTMLElement {
     async move(event,element) {
         event.stopPropagation();
         event.preventDefault();
-        var modal = document.getElementById("myModal");
+        var modal = document.querySelector("#ModalMove");
+        setPreviousElement(element)
+        goToFolderSelect(null,element.id)
         modal.style.display = "block";
-
-        this.dispatchEvent(new CustomEvent('selectPreviousId', {
-            detail:{
-                id:element.#id
-            }, 
-            bubbles: true, 
-            composed: true 
-        }));
     }
 }
 customElements.define("new-element", Item);
@@ -518,29 +512,31 @@ class ItemSelect extends HTMLElement {
     }
 
     render(){
-        const driveLink = this.shadowRoot.querySelector("#drive-link");
-        const driveItemIcon = this.shadowRoot.querySelector(".drive-item-icon");
-        const driveItemDetails = this.shadowRoot.querySelector(".drive-item-details");
-        const driveItemSelectInput = this.shadowRoot.querySelector("#selectItem");
+        if(this.#parentfolder !== this.#id){
+            const driveLink = this.shadowRoot.querySelector("#drive-link");
+            const driveItemIcon = this.shadowRoot.querySelector(".drive-item-icon");
+            const driveItemDetails = this.shadowRoot.querySelector(".drive-item-details");
+            const driveItemSelectInput = this.shadowRoot.querySelector("#selectItem");
+            
+            driveItemIcon.children[0].src = "https://cdn.iconscout.com/icon/free/png-256/free-folder-1166-470303.png"
+            driveItemSelectInput.onclick = (e) => this.select(e,this.shadowRoot);
+            
+            
+            driveLink.onclick = (e) =>{
+                this.dispatchEvent(new CustomEvent('selectPathEvent', {
+                    detail: { item:this }, 
+                    bubbles: true, 
+                    composed: true 
+                }));
 
-        driveItemIcon.children[0].src = "https://cdn.iconscout.com/icon/free/png-256/free-folder-1166-470303.png"
-        driveItemSelectInput.onclick = (e) => this.select(e,this.shadowRoot);
-        
-
-        driveLink.onclick = (e) =>{
-            this.dispatchEvent(new CustomEvent('selectPathEvent', {
-                detail: { item:this }, 
-                bubbles: true, 
-                composed: true 
-            }));
-
-            goToFolderSelect(this.#id)
+                goToFolderSelect(this.#id)
+            }
+            
+            driveItemDetails.children[0].innerText = this.#name
+            driveItemDetails.children[1].innerText = this.#date
         }
-
-        driveItemDetails.children[0].innerText = this.#name
-        driveItemDetails.children[1].innerText = this.#date
     }
-
+        
     select(event,element) {
         event.stopPropagation();
         const list = document.querySelector('.drive-items-select')
@@ -549,12 +545,16 @@ class ItemSelect extends HTMLElement {
         if(driveItemSelectInput.checked){
             console.log(list)
             list.querySelectorAll('select-element').forEach((node) => {
-                let checkbox = node.shadowRoot.querySelector('#selectItem');
+                let checkbox = node.shadowRoot.querySelector('#selectItem') //removed all checked boxes other than the one thats clicked.
                 if(checkbox !== driveItemSelectInput){
-                    checkbox.checked = false
+                    checkbox.checked = false 
                 }
             });
         }
+    }
+
+    getType(){
+        return this.#type
     }
 }
 customElements.define("select-element", ItemSelect);
@@ -569,7 +569,7 @@ selectPathTemplate.innerHTML = `
     }
 
     #pathContent{
-        display:flex;
+        display:none;
         justify-content: flex-end;
         margin-right: 15px;
     }
@@ -592,8 +592,8 @@ class SelectPath extends HTMLElement {
     shadowRoot;
     #pathItem = null
     #redirectItem = null
-    #path = [];
-    #direction = [];
+    #path = []; //nameoflink
+    #direction = []; //link
 
     constructor() {
         super();
@@ -601,7 +601,6 @@ class SelectPath extends HTMLElement {
         this.shadowRoot.appendChild(selectPathTemplate.content.cloneNode(true));
         this.#pathItem = this.shadowRoot.querySelector("#pathId");
         this.#redirectItem = this.shadowRoot.querySelector("a");
-        this.#pathItem.display="none";
     }
 
     add(path, direction){
@@ -619,6 +618,7 @@ class SelectPath extends HTMLElement {
     render() {
         this.#pathItem.innerHTML = "";
         this.#path.forEach((element, index) => {
+            this.shadowRoot.querySelector("#pathContent").style.display="flex"
             let a = document.createElement("a");
             let span = document.createElement("span");
 
@@ -635,11 +635,11 @@ class SelectPath extends HTMLElement {
         });
 
         this.#redirectItem.onclick = () =>{
-            
-            if(this.#direction[this.#direction.length - 2] !== undefined)
+            console.log(this.#direction[this.#direction - 2])
+            if(this.#direction[this.#direction.length - 2] !== undefined) //go to root folder after clicking back icon
                 goToFolderSelect(this.#direction[this.#direction.length - 2])
             else
-                goToFolderSelect('')
+                goToFolderSelect(null)
 
             this.#path.splice(this.#path.length -1, 1);
             this.#direction.splice(this.#direction.length -1, 1);

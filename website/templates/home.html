@@ -13,7 +13,7 @@
                 <div id="loggingBox">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo" class="Logginglogo">
                     <div class="message">
-                        <p>Você não está conectado na nossa plataforma. Para conseguir acesso, por favor faça login ou registre-se.</p>
+                        <p>Você não está conectado na nossa plataforma. Para conseguir acesso, por favor faça login ou registe-se.</p>
                     </div>
                     <div class="buttonsBox">
                         <a href="{% url 'login' %}" class="button">Login</a>
@@ -69,29 +69,20 @@
 
         </div>
 
-        <div id="myModal" class="modal">
+        <div id="ModalMove" class="modal">
 
-            <div class="modal-content">
+            <div class="modal-move">
                 <span class="close">&times;</span>
                 
                 <br><br>
                 
                 <select-path-ui></select-path-ui>
 
-                {% if files|length > 0 or folders|length > 0 %}
-                    <ul class="drive-items-select">
-                        {% for folder in folders %}
-                            <select-element id="{{ folder.id }}" name="{{ folder.name }}" date="{{ folder.date }}" parentfolder="{{ folder.parent_folder }}"></select-element>
-                        {% endfor %}
-                    </ul>
-
-                {% else %}
-                    <h1 style="margin-top:200px;">Não tem nenhum ficheiro ou folder criado.</h1>
+                <ul class="drive-items-select"></ul>
                     
-                {% endif %}
-                <div style="margin-top: 10px; margin-bottom:10px;">
-                    <button style="background-color: lightgreen; float: right;" id="confirmModal">Confirmar</button>
-                    <button style="background-color: darkred; float: right;" id="closeModal">Cancelar</button>
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: right;">
+                    <button id="closeModal" class="btn" style="width:100px; background-color:red;">Cancelar</button>
+                    <button id="confirmModal" class="btn" style="width:100px; background-color:green;">Confirm</button>
                 </div>
             </div>
           

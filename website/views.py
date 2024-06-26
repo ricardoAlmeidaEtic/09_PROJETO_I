@@ -49,9 +49,6 @@ class Home(View):
                 case 'deleteFolder':
                     return utils.delete_folder(data)
                 
-                case 'downloadFolder':
-                    return utils.download_folder(data)
-                
                 case 'downloadFile':
                     return utils.download_file(data)
                 

@@ -183,9 +183,9 @@ class Item extends HTMLElement {
     async delete(event,element) {
         event.stopPropagation();
         event.preventDefault();
-        let typeText = parseInt(element.#type) === 1 ? "Folder" : "File";
+        let typeText = parseInt(element.#type) === 1 ? "Pasta" : "Ficheiro";
         
-        if (confirm(`Are you sure you want to delete this ${typeText}?`)) {
+        if (confirm(`Tem a certeza que deseja apagar - ${typeText}?`)) {
             const id = element.#id;
             const parentFolder = element.#parentfolder;
             
@@ -254,7 +254,7 @@ class Item extends HTMLElement {
         event.preventDefault();
         var modal = document.querySelector("#ModalMove");
         setPreviousElement(element)
-        goToFolderSelect(null,element.id)
+        goToFolderSelect(null, element.id)
         modal.style.display = "block";
     }
 }
@@ -543,7 +543,6 @@ class ItemSelect extends HTMLElement {
         const driveItemSelectInput = element.querySelector("#selectItem")
 
         if(driveItemSelectInput.checked){
-            console.log(list)
             list.querySelectorAll('select-element').forEach((node) => {
                 let checkbox = node.shadowRoot.querySelector('#selectItem') //removed all checked boxes other than the one thats clicked.
                 if(checkbox !== driveItemSelectInput){
@@ -635,7 +634,6 @@ class SelectPath extends HTMLElement {
         });
 
         this.#redirectItem.onclick = () =>{
-            console.log(this.#direction[this.#direction - 2])
             if(this.#direction[this.#direction.length - 2] !== undefined) //go to root folder after clicking back icon
                 goToFolderSelect(this.#direction[this.#direction.length - 2])
             else

@@ -30,6 +30,7 @@ class Home(View):
 
     def handle_json_request(self, request, user):
         try:
+            logger.info(request.body)
             data = json.loads(request.body)
             action = data.get('action')
 

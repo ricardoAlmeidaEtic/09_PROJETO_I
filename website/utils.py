@@ -80,23 +80,35 @@ def download_file(data):
 def change_location(data):
     id = data.get('id')
     parentFolder = data.get('parentId')
-    type = data.get('type')
+    type = data.get('typeFile')
 
     try:
-        if type == 1:
+        if type == "1":
+            logger.info(data)
             logger.info(type)
             logger.info(id)
             logger.info(parentFolder)
-            parent_folder = Folder.objects.get(id = parentFolder)
+
+            if parentFolder == None:
+                parent_folder = None
+            else:
+                parent_folder = Folder.objects.get(id = parentFolder)
+            
             current_folder = Folder.objects.get(id = id)
 
             current_folder.parent_folder = parent_folder
             current_folder.save()
         else:
+            logger.info(data)
             logger.info(type)
             logger.info(id)
             logger.info(parentFolder)
-            parent_folder = Folder.objects.get(id = parentFolder)
+            
+            if parentFolder == None:
+                parent_folder = None
+            else:
+                parent_folder = Folder.objects.get(id = parentFolder)
+
             current_file = File.objects.get(id = id)
 
             current_file.folder = parent_folder

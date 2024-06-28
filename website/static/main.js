@@ -82,8 +82,8 @@ window.onload = () => {
         dropArea.classList.remove('dragover');
 
         const files = e.dataTransfer.files;
-        console.log("files",files)
         if (files.length > 0) {
+            fileInput.files = files;
             addFiles(files);
         }
     };
@@ -105,20 +105,27 @@ window.onload = () => {
         const list = document.querySelector('.drive-items-select')
         list.querySelectorAll('select-element').forEach(async (node) => {
             let checkbox = node.shadowRoot.querySelector('#selectItem');
+            let id = null;
+            console.log("currentPage",currentPage)
+            console.log("checkbox.checked",checkbox.checked)
             if(checkbox.checked){
-                console.log("previousElement.id",previousElement.id)
-                let result = await post('/website/changeLocation/', JSON.stringify({
+                id = node.id
+
+                await post('/website/changeLocation/', JSON.stringify({
                     id: previousElement.id,
-                    parentId : node.id,
-                    type : previousElement.type,
-                    action: 'changeLocation'
+                    action: 'changeLocation',
+                    parentId : id,
+                    typeFile : previousElement.getAttribute("type"),
                 }), {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 });
-                
-                console.log("result",result)
             }
+
+            setTimeout(()=> {
+                location.reload();
+             }
+             ,500);
         });
         
         modal.style.display = "none";
@@ -168,7 +175,6 @@ const post = async (url, body, headers = {}) => {
         return await response.json();
     } catch (error) {
         alert(error.message);
-        console.error(error);
     }
 };
 
@@ -250,8 +256,6 @@ const goToFolderSelect = async (id, clicked = null) => {
         pathUI.style.display = "none";
         pathUI.clear()
     }
-    
-    console.log("items.folders", items.folders)
     
     items.folders.forEach((element) => {
         if(parseInt(element.id) !== parseInt(currentPageSelect)){

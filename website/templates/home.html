@@ -10,10 +10,10 @@
         
         <div class="content-center">
             {% if not user.is_authenticated %}
-                <div id="loggingBox">
+                <div id="startingBox">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/b/b9/Rubik%27s_Cube_-_The_Noun_Project.svg" alt="Logo" class="Logginglogo">
                     <div class="message">
-                        <p>Você não está conectado na nossa plataforma. Para conseguir acesso, por favor faça login ou registe-se.</p>
+                        <p>Você não está conectado na nossa plataforma.<br>Para conseguir acesso, por favor faça login ou registe-se.</p>
                     </div>
                     <div class="buttonsBox">
                         <a href="{% url 'login' %}" class="button">Login</a>
@@ -23,24 +23,24 @@
             {% else %}
                 <div id="uploadBox">
                     <div id="folderBox">
-                        <h1>Folder</h1>
+                        <h1>Pasta</h1>
                         <form method="post" enctype="multipart/form-data" id="folderForm">
                             {% csrf_token %}
-                            <input title="Folder Name" type="text" id="folder_name" placeholder="Enter folder name" required>
-                            <button type="submit" id="submitFolder" class="btn">Create</button>
+                            <input title="Folder Name" type="text" id="folder_name" placeholder="Escreva aqui o nome da pasta" required>
+                            <button type="submit" id="submitFolder" class="btn">Criar</button>
                         </form>
                     </div>
 
                     
                     <div id="fileBox">
-                        <h1>File</h1>
+                        <h1>Ficheiro</h1>
                         <form method="post" enctype="multipart/form-data" id="fileForm">
                             {% csrf_token %}
                             <div id="dropArea" class="drop-area">
-                                <p>Drag and drop a file here or click to select a file</p>
+                                <p>Arraste e solte um ficheiro aqui ou clique para selecionar um ficheiro.</p>
                                 <input type="file" id="file_content" accept="*" hidden>
                             </div>
-                            <button type="submit" id="submitFile" class="btn">Submit</button>
+                            <button type="submit" id="submitFile" class="btn">Enviar</button>
                         </form>
                     </div>
                 </div>
